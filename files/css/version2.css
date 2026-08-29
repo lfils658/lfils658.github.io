@@ -1,0 +1,214 @@
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+body {
+        padding: 0px;
+        margin: 0px;
+        background-color: black;
+        color: white;
+        overflow-x: hidden;
+        scroll-behavior: smooth;
+        scroll-snap-type: y mandatory;
+}
+
+.section {
+        max-width: 100%;
+        min-height: 100vh;
+        scroll-behavior: smooth;
+        scroll-snap-align: start none;
+        padding: 20px;
+}
+
+.zero {
+        margin: 0;
+        border: 0px solid;
+}
+
+#start {
+        text-align: center;
+        background-image: url("/files/media/videos/BKGvid.gif");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        backdrop-filter: blur(8px);
+        text-shadow: 5px 5px 50px black;
+}
+
+#section2 {
+        background: #000000;
+        background: linear-gradient(45deg, rgba(0, 18, 96, 1) 2%, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 1) 70%, rgba(0, 18, 96, 1) 98%);
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+}
+
+#section3 {
+        background: #000000;
+        background: linear-gradient(135deg, rgba(0, 18, 96, 1) 2%, rgba(0, 0, 0, 1) 30%, rgba(0, 0, 0, 1) 70%, rgba(0, 18, 96, 1) 98%);
+}
+
+#end {
+        text-align: center;
+        background: #000000;
+        background-image: url("/files/media/videos/BKGvidend.gif");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        backdrop-filter: blur(8px);
+        text-shadow: 5px 5px 50px black;
+}
+
+#navbar {
+        position: absolute;
+        bottom: 20px;
+        width: 100vw;
+        text-align: center;
+        font-family: 'consolas', monospace;
+}
+
+#navbar td {
+        width: 33.3vw;
+}
+
+.footer {
+        position: absolute;
+        bottom: 10px;
+        text-align: left;
+        font-family: 'consolas', monospace;
+        font-size: 75%;
+}
+
+#section2List {
+        text-align: left;
+        width: calc(50% - 15px);
+        margin: 0;
+        padding: 0px 10px 0px 5px;
+        align-items: center;
+}
+
+#section2Title {
+        text-align: center;
+        width: 50%;
+        margin: 0;
+        align-items: center;
+}
+
+@media (max-width: 500px) {
+        #section2Title {
+                width: 100vw;
+        }
+
+        #sectionList {
+                width: calc(100vw - 15px);
+                margin: 15px;
+        }
+}
+
+h1 {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 500%;
+        color: white;
+        text-align: center;
+}
+
+h2 {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 300%;
+        color: white;
+}
+
+h3 {
+        font-family: 'Bebas Neue', cursive;
+        font-size: 200%;
+        color: white;
+}
+
+p {
+        font-family: "Roboto", sans-serif;
+        font-size: 150%;
+        color: white;
+}
+
+a {
+        color: white;
+}
+
+a:link {
+        text-decoration: underline;
+}
+
+a:hover {
+        text-decoration: underline;
+}
+
+a:active {
+        text-decoration: underline;
+}
+
+@keyframes bounceAnimation {
+
+        0%,
+        100% {
+                transform: translateY(0);
+        }
+
+        50% {
+                transform: translateY(-30px);
+        }
+}
+
+.bounce {
+        animation-name: bounceAnimation;
+        animation-duration: 2s;
+        animation-timing-function: ease-out;
+        animation-iteration-count: infinite;
+        animation-direction: normal;
+        animation-fill-mode: none;
+}
+
+@keyframes fadeAnimation {
+        0% {
+                opacity: 0;
+        }
+
+        100% {
+                opacity: 1;
+        }
+}
+
+.fade1 {
+        animation-name: fadeAnimation;
+        animation-duration: 0.5s;
+        animation-timing-function: ease-out;
+        animation-iteration-count: 1;
+        animation-direction: normal;
+        animation-fill-mode: none;
+}
+
+.fade2 {
+        animation-name: fadeAnimation;
+        animation-duration: 2s;
+        animation-timing-function: ease-out;
+        animation-iteration-count: 1;
+        animation-direction: normal;
+        animation-fill-mode: none;
+}
+
+.fade3 {
+        animation-name: fadeAnimation;
+        animation-duration: 3s;
+        animation-timing-function: ease-out;
+        animation-iteration-count: 1;
+        animation-direction: normal;
+        animation-fill-mode: none;
+}
+
+.fade5 {
+        animation-name: fadeAnimation;
+        animation-duration: 5s;
+        animation-timing-function: ease-out;
+        animation-iteration-count: 1;
+        animation-direction: normal;
+        animation-fill-mode: none;
+}
