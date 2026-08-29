@@ -7,109 +7,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
 
 	<style>
-		body{
-			background-color: black;
-			background-size: cover;
-            background-position: center; 
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-			overflow: hidden;
-            max-height: 100vh;
-		}
-        body::after{
-          content: "";
-          position: absolute;
-          top: -20px;
-          left: -10%;
-          width: 200vw;
-          height: 400px;
-          -webkit-filter: blur(40px);
-          filter: blur(40px);
-          background: rgba(0, 0, 0, 0.4);
-          z-index: -1;
-          overflow-x: hidden;
-        }
-
-		#search-container {
-			display: block;
-			margin: auto;
-			text-align: center;
-            padding: 0px;
-            font-family: 'Courier New', Courier, monospace;
-			border: 0px solid;
-			width: 50vw; /*300*/
-			min-width: 338px;
-			border-radius: 30px;
-            background-color: #ffffff7d;
-			color: black;
-			backdrop-filter: blur(33px);
-			background-blend-mode: overlay;
-		}
-
- 
-        #searchInput {
-             width: 100%;
-             padding: 12px 20px 12px 20px;
-             font-size: 18px;
-             background-color: transparent;
-             border-radius: 30px;
-             border: 0px solid black;
-             font-family: 'Courier New', Courier, monospace;
-             font-weight: bold;
-            
-        }
-        #searchInput:focus{
-    		 outline: none;
-             border-bottom: 1px solid black;
-		}
-
-        #status {
-            margin: 12px 0;
-        }
-
-    	.result {
-      		padding: 12px 20px 12px 20px;
-      		cursor: pointer;
-      		text-align: left;
-            
-    	}
-
-    	.result.selected {
-      		background-color: rgb(0, 153, 255, 0.2);
-    	}
-
-    	.duck-result {
-      		color: #174ea6;
-      		font-style: italic;
-      		border-bottom: 0px solid;
-            font-weight: bold;
-            border-radius: 0px 0px 30px 30px;
-        }
-            
-        #greeting{
-            font-family: Georgia, 'Times New Roman', Times, serif;
-            font-weight: 900;
-			font-style: italic;
-			font-size: 200%;    
-        }
-        #time {
-            font-size: 400%;
-            font-family: 'Courier New', Courier, monospace;
-        }
-        #date {
-            font-family: 'Courier New', Courier, monospace;
-        }
-		.imgText {
-            color: #ffffff;
-            mix-blend-mode: add;
-            text-align: center;
-        }
+		
 	</style>
 </head>
 <body style="padding: 0px; margin: 0px;">
-    <br><br><br>
+    <button
+    type="button"
+    class="cfe-button"
+    onclick="document.getElementById('cfe-settings-window').style.visibility = 'visible';">
+    Settings
+  </button><br><br>
     <div id="greeting" class="imgText">Good <span id="tod"></span></div>
     <br>
     <div id="time" class="imgText"></div>
@@ -126,7 +36,74 @@
   			<div id="results"></div>
     </div>
 
+<div id="cfe-settings-window">
+    <div id="cfe-settings">
+      <h1>Settings</h1>
 
+      <button
+        type="button"
+        class="cfe-button"
+        onclick="document.getElementById('cfe-settings-window').style.visibility = 'hidden';">
+        Close
+      </button>
+
+      <h2>Search Engine</h2>
+
+      <form id="cfe-search-form">
+        <label for="cfe-search-engine">Search Engine:</label>
+
+        <select
+          name="searchEngine"
+          id="cfe-search-engine"
+          class="cfe-select">
+          <option value="Google">Google</option>
+          <option value="DuckDuckGo">DuckDuckGo</option>
+          <option value="Bing">Bing</option>
+        </select>
+
+        <input
+          type="submit"
+          class="cfe-submit"
+          value="Save Search Engine">
+      </form>
+
+      <h2>Bookmarks</h2>
+
+      <div id="cfe-form-rows"></div>
+
+      <p>
+        <button
+          type="button"
+          class="cfe-button"
+          id="cfe-add-row-button">
+          Add Bookmark
+        </button>
+
+        <button
+          type="button"
+          class="cfe-button"
+          id="cfe-save-button">
+          Save Bookmarks
+        </button>
+
+        <button
+          type="button"
+          class="cfe-button"
+          id="cfe-clear-button">
+          Clear All
+        </button>
+
+        <span id="cfe-status"></span>
+      </p>
+
+      <h3>Saved Bookmarks</h3>
+
+      <textarea
+        id="cfe-csv-output"
+        class="cfe-textarea"
+        readonly></textarea>
+    </div>
+  </div>
 
     <script>
         function updateClock() {
@@ -253,38 +230,99 @@
         window.addEventListener("load", checkViewport);
     </script>
   <script>
+    const bookmarkCookieName = "cfe_csvFormData";
+    const searchEngineCookieName = "cfe_selectedSearchEngine";
+    const searchEngines = {
+      Google: "https://www.google.com/search?q=",
+      DuckDuckGo: "https://duckduckgo.com/?q=",
+      Bing: "https://www.bing.com/search?q="
+    };
+
     let records = [];
     let matches = [];
     let selectedIndex = -1;
 
     const searchInput = document.getElementById("searchInput");
-    const status = document.getElementById("status");
+    const searchStatus = document.getElementById("status");
     const results = document.getElementById("results");
 
-    function setStatus(message) {
-      if (status) {
-        status.textContent = message;
+    function setSearchStatus(message) {
+      if (searchStatus) {
+        searchStatus.textContent = message;
       }
     }
 
-    fetch("results.csv")
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Could not load results.csv");
+    function getCookie(name) {
+      const cookies = document.cookie ? document.cookie.split("; ") : [];
+
+      for (const cookie of cookies) {
+        const separator = cookie.indexOf("=");
+
+        if (separator === -1) {
+          continue;
         }
 
-        return response.text();
-      })
-      .then(csvText => {
-        records = parseCSV(csvText);
+        const key = cookie.substring(0, separator);
+        const value = cookie.substring(separator + 1);
+
+        if (key === name) {
+          return decodeURIComponent(value);
+        }
+      }
+
+      return null;
+    }
+
+    function getSelectedSearchEngine() {
+      const savedEngine = getCookie(searchEngineCookieName);
+      return Object.prototype.hasOwnProperty.call(searchEngines, savedEngine)
+        ? savedEngine
+        : "Google";
+    }
+
+    function openSearch(query) {
+      const engine = getSelectedSearchEngine();
+      const url = (searchEngines[engine] || searchEngines.Google) + encodeURIComponent(query);
+      window.open(url, "_self");
+    }
+
+    function loadRecordsFromCookie() {
+      const savedData = getCookie(bookmarkCookieName);
+
+      if (!savedData) {
+        records = [];
+        searchInput.disabled = false;
+        setSearchStatus("No saved bookmarks found.");
+        return;
+      }
+
+      try {
+        const rows = JSON.parse(savedData);
+
+        if (!Array.isArray(rows)) {
+          throw new Error("Saved bookmark data is not an array.");
+        }
+
+        records = rows
+          .filter(item => item && (item.name || item.altName || item.url))
+          .map(item => ({
+            NAME: String(item.name || "").trim(),
+            ALTNAME: String(item.altName || "").trim(),
+            URL: String(item.url || "").trim()
+          }))
+          .filter(record => record.NAME || record.ALTNAME || record.URL);
 
         searchInput.disabled = false;
-        status.textContent = ``;
-        searchInput.focus();
-      })
-      .catch(error => {
-        setStatus(error.message);
-      });
+        setSearchStatus(
+          `${records.length} saved bookmark${records.length === 1 ? "" : "s"} loaded.`
+        );
+      } catch (error) {
+        records = [];
+        setSearchStatus("Could not load saved bookmarks.");
+      }
+    }
+
+    loadRecordsFromCookie();
 
     searchInput.addEventListener("input", updateResults);
 
@@ -338,7 +376,7 @@
         event.preventDefault();
 
         if (selectedIndex === matches.length) {
-          openDuckDuckGo(query);
+          openSearch(query);
           return;
         }
 
@@ -350,7 +388,7 @@
         if (matches.length > 0) {
           openRecord(matches[0]);
         } else {
-          openDuckDuckGo(query);
+          openSearch(query);
         }
       }
     });
@@ -363,30 +401,30 @@
       if (!query) {
         matches = [];
         results.innerHTML = "";
-        setStatus(`${records.length} records loaded.`);
+        setSearchStatus(`${records.length} saved bookmark${records.length === 1 ? "" : "s"} loaded.`);
         return;
       }
 
       matches = records.filter(record =>
-        record.NAME.toLowerCase().includes(query) ||
-        record.ALTNAME.toLowerCase().includes(query)
+        (record.NAME || "").toLowerCase().includes(query) ||
+        (record.ALTNAME || "").toLowerCase().includes(query)
       );
 
       results.innerHTML = matches.map((record, index) => `
         <div class="result" data-index="${index}">
-          <strong>${escapeHTML(record.NAME)}</strong>
+          <strong>${escapeHTML(record.NAME || record.ALTNAME || "Untitled")}</strong>
           ${record.ALTNAME ? ` - ${escapeHTML(record.ALTNAME)}` : ""}
         </div>
       `).join("");
 
-      // Always add DuckDuckGo as the final selectable option
+      const engineName = getSelectedSearchEngine();
       results.innerHTML += `
         <div class="result duck-result" data-index="${matches.length}">
-          ${escapeHTML(searchInput.value.trim())} - Search DuckDuckGo
+          ${escapeHTML(searchInput.value.trim())} - Search ${engineName}
         </div>
       `;
 
-      setStatus(
+      setSearchStatus(
         `${matches.length} match${matches.length === 1 ? "" : "es"} found.`
       );
 
@@ -416,7 +454,7 @@
       const query = searchInput.value.trim();
 
       if (selectedIndex === matches.length) {
-        openDuckDuckGo(query);
+        openSearch(query);
       } else if (matches[selectedIndex]) {
         openRecord(matches[selectedIndex]);
       }
@@ -426,82 +464,12 @@
       if (record.URL) {
         window.open(record.URL, "_self");
       } else {
-        openDuckDuckGo(record.NAME);
+        openSearch(record.NAME || record.ALTNAME || "");
       }
-    }
-
-    function openDuckDuckGo(query) {
-      const url =
-        "https://duckduckgo.com/?q=" + encodeURIComponent(query);
-
-      window.open(url, "_self");
-    }
-
-    function parseCSV(text) {
-      const rows = [];
-      let row = [];
-      let value = "";
-      let insideQuotes = false;
-
-      for (let i = 0; i < text.length; i++) {
-        const character = text[i];
-        const nextCharacter = text[i + 1];
-
-        if (character === '"' && insideQuotes && nextCharacter === '"') {
-          value += '"';
-          i++;
-        } else if (character === '"') {
-          insideQuotes = !insideQuotes;
-        } else if (character === "," && !insideQuotes) {
-          row.push(value.trim());
-          value = "";
-        } else if (
-          (character === "\n" || character === "\r") &&
-          !insideQuotes
-        ) {
-          if (character === "\r" && nextCharacter === "\n") {
-            i++;
-          }
-
-          row.push(value.trim());
-          rows.push(row);
-          row = [];
-          value = "";
-        } else {
-          value += character;
-        }
-      }
-
-      if (value || row.length) {
-        row.push(value.trim());
-        rows.push(row);
-      }
-
-      if (!rows.length) return [];
-
-      const headers = rows.shift().map(header =>
-        header.replace(/^\uFEFF/, "").trim().toUpperCase()
-      );
-
-      return rows
-        .filter(row => row.some(value => value !== ""))
-        .map(row => {
-          const record = {};
-
-          headers.forEach((header, index) => {
-            record[header] = row[index] || "";
-          });
-
-          return {
-            NAME: record.NAME || "",
-            ALTNAME: record.ALTNAME || "",
-            URL: record.URL || ""
-          };
-        });
     }
 
     function escapeHTML(value) {
-      return value.replace(/[&<>"']/g, character => ({
+      return String(value).replace(/[&<>"']/g, character => ({
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
@@ -509,6 +477,239 @@
         "'": "&#039;"
       }[character]));
     }
+  </script>
+  <script>
+    const formRows = document.getElementById("cfe-form-rows");
+    const csvOutput = document.getElementById("cfe-csv-output");
+    const bookmarkStatus = document.getElementById("cfe-status");
+    const searchEngine = document.getElementById("cfe-search-engine");
+    const searchForm = document.getElementById("cfe-search-form");
+
+    const cookieLifetime = 60 * 60 * 24 * 30;
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    function escapeCsv(value) {
+      return `"${String(value).replace(/"/g, '""')}"`;
+    }
+
+    function addRow(name = "", altName = "", url = "") {
+      const row = document.createElement("div");
+      row.className = "cfe-row";
+
+      row.innerHTML = `
+        <input
+          class="cfe-name cfe-input"
+          type="text"
+          placeholder="NAME"
+          value="${escapeHtml(name)}"
+        >
+
+        <input
+          class="cfe-altname cfe-input"
+          type="text"
+          placeholder="ALTNAME"
+          value="${escapeHtml(altName)}"
+        >
+
+        <input
+          class="cfe-url cfe-input"
+          type="url"
+          placeholder="URL"
+          value="${escapeHtml(url)}"
+        >
+
+        <button
+          type="button"
+          class="cfe-remove-button cfe-button">
+          Remove
+        </button>
+      `;
+
+      row.querySelectorAll("input").forEach(input => {
+        input.addEventListener("input", () => {
+          updateCsv();
+          saveBookmarks();
+        });
+      });
+
+      row
+        .querySelector(".cfe-remove-button")
+        .addEventListener("click", () => {
+          row.remove();
+
+          if (document.querySelectorAll(".cfe-row").length === 0) {
+            addRow();
+          }
+
+          updateCsv();
+          saveBookmarks();
+        });
+
+      formRows.appendChild(row);
+    }
+
+    function getFormData() {
+      return [...document.querySelectorAll(".cfe-row")].map(row => ({
+        name: row.querySelector(".cfe-name").value,
+        altName: row.querySelector(".cfe-altname").value,
+        url: row.querySelector(".cfe-url").value
+      }));
+    }
+
+    function updateCsv() {
+      const lines = ["NAME,ALTNAME,URL"];
+
+      getFormData().forEach(item => {
+        lines.push([
+          escapeCsv(item.name),
+          escapeCsv(item.altName),
+          escapeCsv(item.url)
+        ].join(","));
+      });
+
+      csvOutput.value = lines.join("\n");
+    }
+
+    function setCookie(name, value) {
+      document.cookie =
+        `${name}=${encodeURIComponent(value)}; ` +
+        `path=/; max-age=${cookieLifetime}; SameSite=Lax`;
+    }
+
+    function getCookie(name) {
+      const cookies = document.cookie.split("; ");
+
+      for (const cookie of cookies) {
+        const separator = cookie.indexOf("=");
+
+        if (separator === -1) {
+          continue;
+        }
+
+        const key = cookie.substring(0, separator);
+        const value = cookie.substring(separator + 1);
+
+        if (key === name) {
+          return decodeURIComponent(value);
+        }
+      }
+
+      return null;
+    }
+
+    function deleteCookie(name) {
+      document.cookie =
+        `${name}=; path=/; max-age=0; SameSite=Lax`;
+    }
+
+    function saveBookmarks() {
+      const data = JSON.stringify(getFormData());
+
+      setCookie(bookmarkCookieName, data);
+      bookmarkStatus.textContent = "Bookmarks saved";
+    }
+
+    function loadBookmarks() {
+      const savedData = getCookie(bookmarkCookieName);
+
+      if (!savedData) {
+        addRow();
+        updateCsv();
+        return;
+      }
+
+      try {
+        const rows = JSON.parse(savedData);
+
+        if (Array.isArray(rows) && rows.length > 0) {
+          rows.forEach(item => {
+            addRow(
+              item.name || "",
+              item.altName || "",
+              item.url || ""
+            );
+          });
+        } else {
+          addRow();
+        }
+
+        updateCsv();
+        bookmarkStatus.textContent = "Bookmarks loaded";
+      } catch {
+        addRow();
+        updateCsv();
+        bookmarkStatus.textContent = "Could not load bookmarks";
+      }
+    }
+
+    function saveSearchEngine() {
+      setCookie(
+        searchEngineCookieName,
+        searchEngine.value
+      );
+
+      bookmarkStatus.textContent = "Search engine saved";
+    }
+
+    function loadSearchEngine() {
+      const savedSearchEngine =
+        getCookie(searchEngineCookieName);
+
+      if (!savedSearchEngine) {
+        return;
+      }
+
+      const optionExists = [...searchEngine.options]
+        .some(option => option.value === savedSearchEngine);
+
+      if (optionExists) {
+        searchEngine.value = savedSearchEngine;
+      }
+    }
+
+    function clearAll() {
+      formRows.innerHTML = "";
+
+      deleteCookie(bookmarkCookieName);
+
+      addRow();
+      updateCsv();
+
+      bookmarkStatus.textContent = "Bookmarks cleared";
+    }
+
+    document
+      .getElementById("cfe-add-row-button")
+      .addEventListener("click", () => {
+        addRow();
+        updateCsv();
+        saveBookmarks();
+      });
+
+    document
+      .getElementById("cfe-save-button")
+      .addEventListener("click", saveBookmarks);
+
+    document
+      .getElementById("cfe-clear-button")
+      .addEventListener("click", clearAll);
+
+    searchEngine.addEventListener("change", saveSearchEngine);
+
+    searchForm.addEventListener("submit", event => {
+      event.preventDefault();
+      saveSearchEngine();
+    });
+
+    loadSearchEngine();
+    loadBookmarks();
   </script>
 </body>
 </html>
