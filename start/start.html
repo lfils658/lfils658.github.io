@@ -261,6 +261,12 @@
     const status = document.getElementById("status");
     const results = document.getElementById("results");
 
+    function setStatus(message) {
+      if (status) {
+        status.textContent = message;
+      }
+    }
+
     fetch("results.csv")
       .then(response => {
         if (!response.ok) {
@@ -277,7 +283,7 @@
         searchInput.focus();
       })
       .catch(error => {
-        status.textContent = error.message;
+        setStatus(error.message);
       });
 
     searchInput.addEventListener("input", updateResults);
@@ -357,7 +363,7 @@
       if (!query) {
         matches = [];
         results.innerHTML = "";
-        status.textContent = `${records.length} records loaded.`;
+        setStatus(`${records.length} records loaded.`);
         return;
       }
 
@@ -380,14 +386,20 @@
         </div>
       `;
 
-      status.textContent =
-        `${matches.length} match${matches.length === 1 ? "" : "es"} found.`;
+      setStatus(
+        `${matches.length} match${matches.length === 1 ? "" : "es"} found.`
+      );
 
       document.querySelectorAll(".result").forEach(result => {
-        result.addEventListener("mousedown", event => {
-          event.preventDefault();
+        const index = Number(result.dataset.index);
 
-          const index = Number(result.dataset.index);
+        result.addEventListener("mouseenter", () => {
+          selectedIndex = index;
+          updateSelection();
+        });
+
+        result.addEventListener("click", event => {
+          event.preventDefault();
           selectedIndex = index;
           openSelectedResult();
         });
