@@ -1,0 +1,515 @@
+
+<!--DOCTYPE = HTML -->
+<head>
+	<title> &#10244;&#10246;&#10247; LIAM'S HOME PAGE &#10296;&#10288;&#10272;</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="http://lfils658.atwebpages.com/files/media/icons/LF_icon_DARK.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+
+	<style>
+		body{
+			background-color: black;
+			background-size: cover;
+            background-position: center; 
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+			overflow: hidden;
+            max-height: 100vh;
+		}
+        body::after{
+          content: "";
+          position: absolute;
+          top: -20px;
+          left: -10%;
+          width: 200vw;
+          height: 400px;
+          -webkit-filter: blur(40px);
+          filter: blur(40px);
+          background: rgba(0, 0, 0, 0.4);
+          z-index: -1;
+          overflow-x: hidden;
+        }
+
+		#search-container {
+			display: block;
+			margin: auto;
+			text-align: center;
+            padding: 0px;
+            font-family: 'Courier New', Courier, monospace;
+			border: 0px solid;
+			width: 50vw; /*300*/
+			min-width: 338px;
+			border-radius: 30px;
+            background-color: #ffffff7d;
+			color: black;
+			backdrop-filter: blur(33px);
+			background-blend-mode: overlay;
+		}
+
+ 
+        #searchInput {
+             width: 100%;
+             padding: 12px 20px 12px 20px;
+             font-size: 18px;
+             background-color: transparent;
+             border-radius: 30px;
+             border: 0px solid black;
+             font-family: 'Courier New', Courier, monospace;
+             font-weight: bold;
+            
+        }
+        #searchInput:focus{
+    		 outline: none;
+             border-bottom: 1px solid black;
+		}
+
+        #status {
+            margin: 12px 0;
+        }
+
+    	.result {
+      		padding: 12px 20px 12px 20px;
+      		cursor: pointer;
+      		text-align: left;
+            
+    	}
+
+    	.result.selected {
+      		background-color: rgb(0, 153, 255, 0.2);
+    	}
+
+    	.duck-result {
+      		color: #174ea6;
+      		font-style: italic;
+      		border-bottom: 0px solid;
+            font-weight: bold;
+            border-radius: 0px 0px 30px 30px;
+        }
+            
+        #greeting{
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            font-weight: 900;
+			font-style: italic;
+			font-size: 200%;    
+        }
+        #time {
+            font-size: 400%;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        #date {
+            font-family: 'Courier New', Courier, monospace;
+        }
+		.imgText {
+            color: #ffffff;
+            mix-blend-mode: add;
+            text-align: center;
+        }
+	</style>
+</head>
+<body style="padding: 0px; margin: 0px;">
+    <br><br><br>
+    <div id="greeting" class="imgText">Good <span id="tod"></span>, Liam</div>
+    <br>
+    <div id="time" class="imgText"></div>
+    <div id="date" class="imgText"></div>
+    <br>
+    <div id="weather-output" style="font-family: 'Courier New', Courier, monospace;" class="imgText">Loading location and weather data...</div>
+    <br><br>
+
+    <div id="search-container">
+            <form>
+            <input type="search" id="searchInput" placeholder="Search..." disabled autocomplete="off" autofocus>   
+            </form>
+            <!--<div id="status"></div>-->
+  			<div id="results"></div>
+    </div>
+
+
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+
+            // Format Time (HH:MM:SS) with leading zeros
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('time').textContent = `${hours}:${minutes}:${seconds}`;
+
+            // Format Date (DAY, MONTH DD, YYYY)
+            const days = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+            const months = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+            
+            const dayName = days[now.getDay()];
+            const monthName = months[now.getMonth()];
+            const dateNum = String(now.getDate()).padStart(2, '0');
+            const year = now.getFullYear();
+
+            document.getElementById('date').textContent = `${dayName}, ${monthName} ${dateNum}, ${year}`;
+        }
+
+        // Run immediately on page load
+        updateClock();
+        
+        // Update every single second
+        setInterval(updateClock, 1000);
+    </script>
+    <script>
+            function updateTimeOfDay() {
+                    const tod = document.getElementById("tod");
+                    const hour = new Date().getHours();
+
+                    let label;
+                    if (hour >= 5 && hour < 12) {
+                            label = "morning";
+                    } else if (hour >= 12 && hour < 18) {
+                            label = "afternoon";
+                    } else {
+                            label = "evening";
+                    }
+
+                    tod.textContent = label;
+            }
+
+            // run once on load
+            updateTimeOfDay();
+
+            // optional: update every minute
+            setInterval(updateTimeOfDay, 60000);
+    </script>
+    <script>
+        async function fetchWeatherByIP() {
+  try {
+    outputDiv.innerText = "Finding your approximate location...";
+
+    const response = await fetch("https://ipapi.co/json/");
+
+    if (!response.ok) {
+      throw new Error(`IP location HTTP ${response.status}`);
+    }
+
+    const location = await response.json();
+
+    if (!location.latitude || !location.longitude) {
+      throw new Error("IP location did not provide coordinates");
+    }
+
+    const label = location.city && location.country_name
+      ? `${location.city}, ${location.country_name}`
+      : "Approximate location";
+
+    await fetchWeather(
+      Number(location.latitude),
+      Number(location.longitude),
+      label
+    );
+  } catch (error) {
+    console.warn("IP location failed:", error);
+
+    fetchWeather(
+      DEFAULT_LAT,
+      DEFAULT_LON,
+      DEFAULT_LABEL
+    );
+  }
+}
+
+function loadWeather() {
+  // Browser geolocation requires HTTPS when deployed online.
+  if (!navigator.geolocation || !window.isSecureContext) {
+    console.warn("Precise geolocation unavailable; using IP location.");
+    fetchWeatherByIP();
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+
+      fetchWeather(
+        lat,
+        lon,
+        `${lat.toFixed(2)}Â°, ${lon.toFixed(2)}Â°`
+      );
+    },
+    (error) => {
+      console.warn(
+        `Precise geolocation failed. Error code: ${error.code}`,
+        error.message
+      );
+
+      // Error code 3 means the request timed out.
+      fetchWeatherByIP();
+    },
+    {
+      enableHighAccuracy: false,
+      timeout: 15000,
+      maximumAge: 300000
+    }
+  );
+}
+
+loadWeather();
+
+    </script>
+    <script>
+        function checkViewport() {
+                if (window.innerWidth > window.innerHeight) {
+                    document.body.style.backgroundImage = "url('https://picsum.photos/1280/720/?blur=2')";
+                } else {
+                    document.body.style.backgroundImage = "url('https://picsum.photos/720/1280/?blur=2')";
+                }
+        }
+        window.addEventListener("load", checkViewport);
+    </script>
+  <script>
+    let records = [];
+    let matches = [];
+    let selectedIndex = -1;
+
+    const searchInput = document.getElementById("searchInput");
+    const status = document.getElementById("status");
+    const results = document.getElementById("results");
+
+    fetch("results.csv")
+      .then(response => {
+        if (!response.ok) {
+          throw new Error("Could not load results.csv");
+        }
+
+        return response.text();
+      })
+      .then(csvText => {
+        records = parseCSV(csvText);
+
+        searchInput.disabled = false;
+        status.textContent = ``;
+        searchInput.focus();
+      })
+      .catch(error => {
+        status.textContent = error.message;
+      });
+
+    searchInput.addEventListener("input", updateResults);
+
+    searchInput.addEventListener("keydown", event => {
+      const query = searchInput.value.trim();
+
+      if (!query) return;
+
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+
+        if (selectedIndex < matches.length) {
+          selectedIndex++;
+        } else {
+          selectedIndex = 0;
+        }
+
+        updateSelection();
+        return;
+      }
+
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+
+        if (selectedIndex > 0) {
+          selectedIndex--;
+        } else {
+          selectedIndex = matches.length;
+        }
+
+        updateSelection();
+        return;
+      }
+
+      if (event.key === "Tab") {
+        if (matches.length > 0) {
+          event.preventDefault();
+
+          const index = selectedIndex >= 0 && selectedIndex < matches.length
+            ? selectedIndex
+            : 0;
+
+          searchInput.value = matches[index].NAME;
+          updateResults();
+        }
+
+        return;
+      }
+
+      if (event.key === "Enter") {
+        event.preventDefault();
+
+        if (selectedIndex === matches.length) {
+          openDuckDuckGo(query);
+          return;
+        }
+
+        if (selectedIndex >= 0 && matches[selectedIndex]) {
+          openRecord(matches[selectedIndex]);
+          return;
+        }
+
+        if (matches.length > 0) {
+          openRecord(matches[0]);
+        } else {
+          openDuckDuckGo(query);
+        }
+      }
+    });
+
+    function updateResults() {
+      const query = searchInput.value.trim().toLowerCase();
+
+      selectedIndex = -1;
+
+      if (!query) {
+        matches = [];
+        results.innerHTML = "";
+        status.textContent = `${records.length} records loaded.`;
+        return;
+      }
+
+      matches = records.filter(record =>
+        record.NAME.toLowerCase().includes(query) ||
+        record.ALTNAME.toLowerCase().includes(query)
+      );
+
+      results.innerHTML = matches.map((record, index) => `
+        <div class="result" data-index="${index}">
+          <strong>${escapeHTML(record.NAME)}</strong>
+          ${record.ALTNAME ? ` - ${escapeHTML(record.ALTNAME)}` : ""}
+        </div>
+      `).join("");
+
+      // Always add DuckDuckGo as the final selectable option
+      results.innerHTML += `
+        <div class="result duck-result" data-index="${matches.length}">
+          ${escapeHTML(searchInput.value.trim())} - Search DuckDuckGo
+        </div>
+      `;
+
+      status.textContent =
+        `${matches.length} match${matches.length === 1 ? "" : "es"} found.`;
+
+      document.querySelectorAll(".result").forEach(result => {
+        result.addEventListener("mousedown", event => {
+          event.preventDefault();
+
+          const index = Number(result.dataset.index);
+          selectedIndex = index;
+          openSelectedResult();
+        });
+      });
+    }
+
+    function updateSelection() {
+      document.querySelectorAll(".result").forEach((result, index) => {
+        result.classList.toggle("selected", index === selectedIndex);
+      });
+    }
+
+    function openSelectedResult() {
+      const query = searchInput.value.trim();
+
+      if (selectedIndex === matches.length) {
+        openDuckDuckGo(query);
+      } else if (matches[selectedIndex]) {
+        openRecord(matches[selectedIndex]);
+      }
+    }
+
+    function openRecord(record) {
+      if (record.URL) {
+        window.open(record.URL, "_self");
+      } else {
+        openDuckDuckGo(record.NAME);
+      }
+    }
+
+    function openDuckDuckGo(query) {
+      const url =
+        "https://duckduckgo.com/?q=" + encodeURIComponent(query);
+
+      window.open(url, "_self");
+    }
+
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let value = "";
+      let insideQuotes = false;
+
+      for (let i = 0; i < text.length; i++) {
+        const character = text[i];
+        const nextCharacter = text[i + 1];
+
+        if (character === '"' && insideQuotes && nextCharacter === '"') {
+          value += '"';
+          i++;
+        } else if (character === '"') {
+          insideQuotes = !insideQuotes;
+        } else if (character === "," && !insideQuotes) {
+          row.push(value.trim());
+          value = "";
+        } else if (
+          (character === "\n" || character === "\r") &&
+          !insideQuotes
+        ) {
+          if (character === "\r" && nextCharacter === "\n") {
+            i++;
+          }
+
+          row.push(value.trim());
+          rows.push(row);
+          row = [];
+          value = "";
+        } else {
+          value += character;
+        }
+      }
+
+      if (value || row.length) {
+        row.push(value.trim());
+        rows.push(row);
+      }
+
+      if (!rows.length) return [];
+
+      const headers = rows.shift().map(header =>
+        header.replace(/^\uFEFF/, "").trim().toUpperCase()
+      );
+
+      return rows
+        .filter(row => row.some(value => value !== ""))
+        .map(row => {
+          const record = {};
+
+          headers.forEach((header, index) => {
+            record[header] = row[index] || "";
+          });
+
+          return {
+            NAME: record.NAME || "",
+            ALTNAME: record.ALTNAME || "",
+            URL: record.URL || ""
+          };
+        });
+    }
+
+    function escapeHTML(value) {
+      return value.replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[character]));
+    }
+  </script>
+</body>
+</html>
