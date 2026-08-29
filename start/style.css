@@ -46,6 +46,7 @@ body::after {
   border-radius: 30px;
   border: 0 solid black;
   font-weight: bold;
+  font-family: 'Courier New', Courier, monospace;
 }
 
 #searchInput:focus {
@@ -136,6 +137,7 @@ body::after {
   grid-template-columns: 1fr 1fr 2fr auto;
   gap: 8px;
   margin-bottom: 8px;
+  font-family: 'Courier New', Courier, monospace;
 }
 
 .cfe-input,
@@ -145,6 +147,7 @@ body::after {
   box-sizing: border-box;
   border-radius: 30px;
   border: 0 solid;
+  font-family: 'Courier New', Courier, monospace;
 }
 
 .cfe-button,
@@ -153,6 +156,7 @@ body::after {
   border-radius: 30px;
   cursor: pointer;
   border: 0 solid;
+  font-family: 'Courier New', Courier, monospace;
 }
 
 .cfe-textarea {
@@ -161,7 +165,7 @@ body::after {
   margin-top: 10px;
   padding: 12px;
   box-sizing: border-box;
-  font-family: monospace;
+  font-family: 'Courier New', Courier, monospace;
   border-radius: 30px;
   border: 0 solid;
 }
