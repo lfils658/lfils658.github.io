@@ -61,7 +61,7 @@ body {
 
 #navbar {
         position: absolute;
-        bottom: 20px;
+        bottom: 50px;
         width: 100vw;
         text-align: center;
         font-family: 'consolas', monospace;
@@ -99,7 +99,7 @@ body {
                 width: 100vw;
         }
 
-        #sectionList {
+        #section2List {
                 width: calc(100vw - 15px);
                 margin: 15px;
         }
